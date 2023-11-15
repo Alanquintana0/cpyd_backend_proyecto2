@@ -6,7 +6,6 @@ var logger = require('morgan')
 const cors = require
 
 var indexRouter = require('./routes/index')
-var usersRouter = require('./routes/users')
 const customersRouter = require('./routes/customers')
 const orderItemsRouter = require('./routes/orderItems')
 const ordersRouter = require('./routes/orders')
