@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "nodemon src/index.js"
   },
   "author": "",
   "license": "ISC",
@@ -17,11 +17,11 @@
     "http-errors": "^2.0.0",
     "jade": "^1.11.0",
     "mongoose": "^8.0.0",
-    "morgan": "^1.10.0",
     "oracledb": "^6.2.0",
-    "redis": "^4.6.10"
+    "promise-mysql": "^5.2.0"
   },
   "devDependencies": {
+    "morgan": "^1.10.0",
     "supervisor": "^0.12.0"
   }
 }
