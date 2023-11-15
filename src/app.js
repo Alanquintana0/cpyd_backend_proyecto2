@@ -29,7 +29,6 @@ app.use(cors({
 }));
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
 app.use('/customers', customersRouter);
 app.use('/orderItems', orderItemsRouter);
 app.use('/orders', ordersRouter);
