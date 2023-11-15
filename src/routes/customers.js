@@ -1,7 +1,7 @@
 const express = require("express")
 const clientSchema = require('../models/customer')
 const router = express.Router();
-const db = require('./mysqlclient');
+const db = require('../mysqlclient');
 
 router.get('/', async(req, res, next)=>{
     const connection = await db.create_connection();
@@ -64,27 +64,30 @@ router.delete('/:id/:region', async(req, res, next)=> {
 
 router.post('/customers', async(req, res, next) => {
     let connection;
-    const customer_id = req.params.customer_id;
-    const customer_first_name = req.params.customer_first_name;
-    const customer_last_name = req.params.customer_last_name;
-    const credit_limit = req.params.credit_limit;
-    const customer_email = req.params.customer_email;
-    const income_level = req.params.income_level;
-    const region = req.params.region;
+
+    const { customer_id, customer_first_name, customer_last_name, credit_limit, customer_email, income_level, region } = req.body;
 
     try{
         connection = await db.create_connection();
         await connection.execute(
             `BEGIN
                 create_customer(
-                    ${customer_id},
-                    ${customer_first_name},
-                    ${customer_last_name},
-                    ${credit_limit},
-                    ${customer_email},
-                    ${income_level},
-                    ${region});
-                END;`
+                    :customer_id,
+                    :customer_first_name,
+                    :customer_last_name,
+                    :credit_limit,:customer_email,
+                    :income_level,
+                    :region
+             END;`, 
+             {
+                customer_id,
+                customer_first_name,
+                customer_last_name,
+                credit_limit,
+                customer_email,
+                income_level,
+                region
+             }
         );
     }catch(err){
         res.status(500).json({error: 'Error al obtener los datos'})
@@ -96,6 +99,7 @@ router.post('/customers', async(req, res, next) => {
 
 router.put('/:id/:item_id', async(req, res, next)=>{
     let conn;
+    const { customer_id, customer_first_name, customer_last_name, credit_limit, customer_email, income_level, region } = req.body;
         try {
             conn = await db.connectToDatabase();
             await conn.execute(
@@ -111,13 +115,13 @@ router.put('/:id/:item_id', async(req, res, next)=>{
                     ); 
                  END;`,
                 {
-                    customer_id:this.customer_id,
-                    cust_first_name:this.customer_first_name,
-                    cust_last_name:this.customer_last_name,
-                    credit_limit:this.credit_limit,
-                    cust_email:this.customer_email,
-                    income_level:this.income_level,
-                    region:this.region
+                    customer_id,
+                    customer_first_name,
+                    customer_last_name,
+                    credit_limit,
+                    customer_email,
+                    income_level,
+                    region
                 }
             );
             console.log('Cliente actualizado');
@@ -132,4 +136,4 @@ router.put('/:id/:item_id', async(req, res, next)=>{
         }
 })
 
-
+module.exports = router;
