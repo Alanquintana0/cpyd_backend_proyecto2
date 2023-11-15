@@ -11,6 +11,7 @@ async function create_connection(){
 
     try {
         await mysql_con.connect();
+        console.log("Conection success")
     } catch (err) {
         console.log('Error en mysql', err);
         throw err;
