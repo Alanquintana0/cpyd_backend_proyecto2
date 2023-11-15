@@ -1,12 +1,11 @@
 const express = require("express")
-const orderItemsSchema = require('../models/customer')
 const router = express.Router();
 const db = require('../mysqlclient');
 
 router.get('/', async(req, res, next)=>{
     const connection = await db.create_connection();
     try {
-        const data = await db.getData(connection, 'SELECT * FROM order_items');
+        const data = await db.getData(connection, 'SELECT * FROM ORDER_ITEMS');
         res.json(data);
     } catch (err) {
         res.status(500).json({ error: 'Error al obtener los datos' });
@@ -17,9 +16,9 @@ router.get('/', async(req, res, next)=>{
 
 router.get('/:id', async(req, res, next)=>{
     const connection = await db.create_connection();
-    let order_item = req.params.id;
+    let order_id = req.params.id;
     try{
-        const data = await db.getData(connection, `SELECT * FROM order_items WHERE order_id = ${order_item}`);
+        const data = await db.getData(connection, `SELECT * FROM ORDER_ITEMS WHERE ORDER_ID = ${order_id}`);
         res.json(data);
     }catch(err){
         res.status(500).json({error: 'Error al obtener los datos'});
@@ -28,27 +27,13 @@ router.get('/:id', async(req, res, next)=>{
     }
 })
 
-router.delete('/:id/:item_id', async(req, res, next)=> {
+router.delete('/:id', async(req, res, next)=> {
     const connection = await db.create_connection();
-    let order_item_id = req.body.id;
-    let line_item_id = req.body.item_id;
+    let order_id = req.params.id;
 
     try{
-        connection = await oracledb.connectToDatabase();
-        await connection.execute(
-            `BEGIN 
-                delete_order_item(
-                    :order_id,
-                    :line_item_id
-                ); 
-             END;`,
-             {
-                order_id:order_id,
-                line_time_id:line_item_id
-             }
-        );
-        console.log('order_item deleted');
-        await connection.execute('COMMIT');
+        await connection.execute(`DELETE FROM ORDER_ITEMS WHERE ORDER_ID = ${order_id}`);
+        console.log('Order item deleted');
     }catch(err){
         console.error(err);
         throw err;
@@ -57,27 +42,14 @@ router.delete('/:id/:item_id', async(req, res, next)=> {
     }
 })
 
-router.post('/customers', async(req, res, next) => {
+router.post('/order_items', async(req, res, next) => {
     const connection = await db.create_connection();
-    let { order_id, line_item_id, product_id, unit_price, quantity } = req.body;
+    let { ORDER_ID, LINE_ITEM_ID, PRODUCT_ID, UNIT_PRICE, QUANTITY } = req.body;
     try{
-        connection = await db.create_connection();
         await connection.execute(
-            `BEGIN
-                create_order_item(
-                    :order_id,
-                    :line_item_id,
-                    :product_id,
-                    :unit_price,
-                    :quantity);
-             END;`,
-             {
-                order_id,
-                line_item_id,
-                product_id,
-                unit_price,
-                quantity
-             }
+            `INSERT INTO ORDER_ITEMS (ORDER_ID, LINE_ITEM_ID, PRODUCT_ID, UNIT_PRICE, QUANTITY) 
+            VALUES (?, ?, ?, ?, ?)`,
+             [ORDER_ID, LINE_ITEM_ID, PRODUCT_ID, UNIT_PRICE, QUANTITY]
         );
     }catch(err){
         res.status(500).json({error: 'Error al obtener los datos'})
@@ -87,27 +59,13 @@ router.post('/customers', async(req, res, next) => {
     }
 })
 
-router.put('/:id/:item_id', async(req, res, next)=>{
+router.put('/:id', async(req, res, next)=>{
     const connection = await db.create_connection();
-    let { order_id, line_item_id, product_id, unit_price, quantity } = req.body;
+    let { ORDER_ID, LINE_ITEM_ID, PRODUCT_ID, UNIT_PRICE, QUANTITY } = req.body;
     try{
-        connection = await db.create_connection();
         await connection.execute(
-            `BEGIN
-                update_order_item(
-                    :order_id,
-                    :line_item_id,
-                    :product_id,
-                    :unit_price,
-                    :quantity);
-             END;`,
-             {
-                order_id,
-                line_item_id,
-                product_id,
-                unit_price,
-                quantity
-             }
+            `UPDATE ORDER_ITEMS SET LINE_ITEM_ID = ?, PRODUCT_ID = ?, UNIT_PRICE = ?, QUANTITY = ? WHERE ORDER_ID = ?`,
+             [LINE_ITEM_ID, PRODUCT_ID, UNIT_PRICE, QUANTITY, ORDER_ID]
         );
     }catch(err){
         res.status(500).json({error: 'Error al obtener los datos'})

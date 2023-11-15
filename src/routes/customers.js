@@ -1,12 +1,11 @@
 const express = require("express")
-const clientSchema = require('../models/customer')
 const router = express.Router();
 const db = require('../mysqlclient');
 
 router.get('/', async(req, res, next)=>{
     const connection = await db.create_connection();
     try {
-        const data = await db.getData(connection, 'SELECT * FROM customers');
+        const data = await db.getData(connection, 'SELECT * FROM CUSTOMERS');
         res.json(data);
     } catch (err) {
         res.status(500).json({ error: 'Error al obtener los datos' });
@@ -19,75 +18,38 @@ router.get('/:id', async(req, res, next)=>{
     const connection = await db.create_connection();
     let customer_id = req.params.id;
     try{
-        const data = await db.getData(connection, `SELECT * FROM customers WHERE id = ${customer_id}`);
-        res.json(data)
-    } catch(err){
-        res.status(500).json({error: 'Error al obtener los datos'})
+        const data = await db.getData(connection, `SELECT * FROM CUSTOMERS WHERE CUSTOMER_ID = ${customer_id}`);
+        res.json(data);
+    }catch(err){
+        res.status(500).json({error: 'Error al obtener los datos'});
     }finally{
-        await db.close_connection(connection)
+        await db.close_connection(connection);
     }
 })
 
-router.delete('/:id/:region', async(req, res, next)=> {
-    let connection;
-    customer_id = req.params.id;
-    region = req.params.region;
+router.delete('/:id', async(req, res, next)=> {
+    const connection = await db.create_connection();
+    let customer_id = req.params.id;
+
     try{
-        connection = await db.create_connection();
-        await connection.execute(
-            `BEGIN
-                delete_customer(
-                    ${customer_id},
-                    ${region}
-                );
-             END;`,
-             {
-                customer_id: customer_id,
-                region:region
-             }
-        );
-        console.log("Customer deleted")
-        await connection.execute('COMMIT')
-    } catch(err){
-        res.status(500).json({error: 'Error al obtener los datos'})
+        await connection.execute(`DELETE FROM CUSTOMERS WHERE CUSTOMER_ID = ${customer_id}`);
+        console.log('Customer deleted');
+    }catch(err){
+        console.error(err);
         throw err;
     }finally{
-        if(conn){
-            try{
-                await db.close_connection(connection);
-            }catch(err){
-                console.log(err)
-            }
-        }
+        await db.closeConnection(connection)
     }
 })
 
 router.post('/customers', async(req, res, next) => {
-    let connection;
-
-    const { customer_id, customer_first_name, customer_last_name, credit_limit, customer_email, income_level, region } = req.body;
-
+    const connection = await db.create_connection();
+    let { CUSTOMER_ID, CUST_FIRST_NAME, CUST_LAST_NAME, CREDIT_LIMIT, CUST_EMAIL, INCOME_LEVEL, REGION } = req.body;
     try{
-        connection = await db.create_connection();
         await connection.execute(
-            `BEGIN
-                create_customer(
-                    :customer_id,
-                    :customer_first_name,
-                    :customer_last_name,
-                    :credit_limit,:customer_email,
-                    :income_level,
-                    :region
-             END;`, 
-             {
-                customer_id,
-                customer_first_name,
-                customer_last_name,
-                credit_limit,
-                customer_email,
-                income_level,
-                region
-             }
+            `INSERT INTO CUSTOMERS (CUSTOMER_ID, CUST_FIRST_NAME, CUST_LAST_NAME, CREDIT_LIMIT, CUST_EMAIL, INCOME_LEVEL, REGION) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)`,
+             [CUSTOMER_ID, CUST_FIRST_NAME, CUST_LAST_NAME, CREDIT_LIMIT, CUST_EMAIL, INCOME_LEVEL, REGION]
         );
     }catch(err){
         res.status(500).json({error: 'Error al obtener los datos'})
@@ -97,43 +59,20 @@ router.post('/customers', async(req, res, next) => {
     }
 })
 
-router.put('/:id/:item_id', async(req, res, next)=>{
-    let conn;
-    const { customer_id, customer_first_name, customer_last_name, credit_limit, customer_email, income_level, region } = req.body;
-        try {
-            conn = await db.connectToDatabase();
-            await conn.execute(
-                `BEGIN 
-                    update_customer(
-                        :customer_id,
-                        :customer_first_name,
-                        :customer_last_name,
-                        :credit_limit,
-                        :customer_email,
-                        :income_level,
-                        :region
-                    ); 
-                 END;`,
-                {
-                    customer_id,
-                    customer_first_name,
-                    customer_last_name,
-                    credit_limit,
-                    customer_email,
-                    income_level,
-                    region
-                }
-            );
-            console.log('Cliente actualizado');
-            await conn.execute('COMMIT');
-        } catch (err) {
-            console.error(err);
-            throw err;
-        } finally {
-            if (conn) {
-                await oracledb.closeConnection(conn);
-            }
-        }
+router.put('/:id', async(req, res, next)=>{
+    const connection = await db.create_connection();
+    let { CUSTOMER_ID, CUST_FIRST_NAME, CUST_LAST_NAME, CREDIT_LIMIT, CUST_EMAIL, INCOME_LEVEL, REGION } = req.body;
+    try{
+        await connection.execute(
+            `UPDATE CUSTOMERS SET CUST_FIRST_NAME = ?, CUST_LAST_NAME = ?, CREDIT_LIMIT = ?, CUST_EMAIL = ?, INCOME_LEVEL = ?, REGION = ? WHERE CUSTOMER_ID = ?`,
+             [CUST_FIRST_NAME, CUST_LAST_NAME, CREDIT_LIMIT, CUST_EMAIL, INCOME_LEVEL, REGION, CUSTOMER_ID]
+        );
+    }catch(err){
+        res.status(500).json({error: 'Error al obtener los datos'})
+        throw err;
+    }finally{
+        await db.close_connection(connection)
+    }
 })
 
 module.exports = router;

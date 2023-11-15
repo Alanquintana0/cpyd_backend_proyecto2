@@ -48,7 +48,8 @@ router.post('/orders', async(req, res, next) => {
     let { ORDER_ID, ORDER_DATE, ORDER_MODE, CUSTOMER_ID, ORDER_STATUS, ORDER_TOTAL, SALES_REP_ID, PROMOTION_ID } = req.body;
     try{
         await connection.execute(
-            `INSERT INTO ORDERS (ORDER_ID, ORDER_DATE, ORDER_MODE, CUSTOMER_ID, ORDER_STATUS, ORDER_TOTAL, SALES_REP_ID, PROMOTION_ID) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            `INSERT INTO ORDERS (ORDER_ID, ORDER_DATE, ORDER_MODE, CUSTOMER_ID, ORDER_STATUS, ORDER_TOTAL, SALES_REP_ID, PROMOTION_ID) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
              [ORDER_ID, ORDER_DATE, ORDER_MODE, CUSTOMER_ID, ORDER_STATUS, ORDER_TOTAL, SALES_REP_ID, PROMOTION_ID]
         );
     }catch(err){
